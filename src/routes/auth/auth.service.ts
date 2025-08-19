@@ -1,9 +1,9 @@
 import { Injectable, HttpStatus, Res, Req } from "@nestjs/common";
-import { Helper } from "src/resources/helper/Helper";
+import { Helper } from "../../resources/helper/Helper";
 import { Response, Request } from "express";
-import errors from "src/resources/errors/errors";
-import { Database } from "src/resources/database/Database";
-import { Password } from "src/resources/helper/Password";
+import errors from "../../resources/errors/errors";
+import { Database } from "../../resources/database/Database";
+import { Password } from "../../resources/helper/Password";
 import { JwtService } from "@nestjs/jwt";
 
 @Injectable()

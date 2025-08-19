@@ -1,8 +1,8 @@
 import { Injectable, HttpStatus, Res } from "@nestjs/common";
-import { Helper } from "src/resources/helper/Helper";
+import { Helper } from "../../resources/helper/Helper";
 import { Response } from "express";
-import errors from "src/resources/errors/errors";
-import { Database } from "src/resources/database/Database";
+import errors from "../../resources/errors/errors";
+import { Database } from "../../resources/database/Database";
 import { AdminGateway } from "./admin.gateway";
 
 type CameraStatus = "on" | "off";
