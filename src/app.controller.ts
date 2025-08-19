@@ -10,4 +10,9 @@ export class AppController {
   index(@Res() res: Response): object {
     return this.appService.index(res);
   }
+
+  @Get("ping")
+  Ping(@Res() res: Response): void {
+    return this.appService.ping(res);
+  }
 }
