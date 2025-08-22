@@ -46,10 +46,6 @@ export class Tokenify {
             return resolve(false);
           }
 
-          setTimeout(() => {
-            Database.remove("refresh_token", "token", getToken);
-            Database.remove("hash_token", "token", P_token);
-          }, 2000);
           res.cookie("refresh_token", "", {
             httpOnly: true,
             secure: true,

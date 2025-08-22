@@ -28,13 +28,15 @@ const adminSession = new Schema({
 });
 
 const refreshToken = new Schema({
-  token: { type: String, index: true }
+  token: { type: String, index: true },
+  createdAt: { type: Date, default: Date.now, expires: 2 }
 })
 
 const hashToken = new Schema({
   token: { type: String, index: true },
   hash: { type: String, index: true },
-  salt: { type: String, index: true }
+  salt: { type: String, index: true },
+  createdAt: { type: Date, default: Date.now, expires: 2 }
 })
 
 type UserSchema = InferSchemaType<typeof userSchema>;
