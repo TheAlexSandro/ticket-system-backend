@@ -4,11 +4,16 @@ import { Response, Request } from "express";
 import errors from "../../resources/errors/errors";
 import { Database } from "../../resources/database/Database";
 import { Password } from "../../resources/helper/Password";
-import { JwtService } from "@nestjs/jwt";
+import { Tokenify } from "../../resources/helper/Tokenify";
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly tokenify: Tokenify) {}
+
+  generateAuthentication(@Res() res: Response) {
+    const r = this.tokenify.generateRefreshToken(res);
+    return Helper.response(res, HttpStatus.OK, true, "Success!", null, { P_token: r['P_token'] });
+  }
 
   signUp(
     @Res() res: Response,
@@ -31,17 +36,23 @@ export class AuthService {
     const salt = Password.generateSalt();
     const encrypt = Password.hashPassword(password, salt);
 
-    Database.add("user", IDs, "username", encrypt, salt, (error, result) => {
-      if (error)
-        return Helper.response(
-          res,
-          HttpStatus.OK,
-          false,
-          error,
-          errors["400"]["UNKNOWN_ERROR"].code
-        );
-      return Helper.response(res, HttpStatus.OK, true, "Success!");
-    });
+    Database.add(
+      "user",
+      IDs,
+      "username",
+      { password: encrypt, salt },
+      (error, result) => {
+        if (error)
+          return Helper.response(
+            res,
+            HttpStatus.OK,
+            false,
+            error,
+            errors["400"]["UNKNOWN_ERROR"].code
+          );
+        return Helper.response(res, HttpStatus.OK, true, "Success!");
+      }
+    );
   }
 
   getUsername(@Res() res: Response, username: string | null) {
@@ -122,7 +133,7 @@ export class AuthService {
           errors["401"]["UNAUTHORIZED_ACCESS"].code
         );
 
-      const token = this.jwtService.sign({ username });
+      const token = this.tokenify.generateJWT({ username });
       res.cookie("auth_token", token, {
         httpOnly: true,
         secure: true,
@@ -145,7 +156,7 @@ export class AuthService {
         "Not logged in",
         errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
-    const verif = this.jwtService.verify(getJWT);
+    const verif = this.tokenify.verifyJWT(getJWT);
     if (!verif)
       return Helper.response(
         res,
@@ -177,7 +188,7 @@ export class AuthService {
         "Not logged in",
         errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
-    const verif = this.jwtService.verify(getJWT);
+    const verif = this.tokenify.verifyJWT(getJWT);
     if (!verif)
       return Helper.response(
         res,
@@ -205,7 +216,7 @@ export class AuthService {
           errors["401"]["UNAUTHORIZED_ACCESS"].code
         );
 
-      Database.get("admin_dashboard", "id", verif["username"], (err, r) => {
+      Database.get("admin_dashboard", "id", verif["data"]["username"], (err, r) => {
         if (err)
           return Helper.response(
             res,

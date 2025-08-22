@@ -15,12 +15,12 @@ export class AdminController {
   }
 
   @Post("cameraStatus")
-  cameraStatus(@Res() res: Response, @Query() status: CameraStatus | null): void {
-    return this.adminService.cameraStatus(res, status!['status']);
+  cameraStatus(@Res() res: Response, @Query("status") status: CameraStatus | null): void {
+    return this.adminService.cameraStatus(res, status);
   }
 
   @Post("cameraPermissions")
-  cameraPermissions(@Res() res: Response, @Query() role: CameraPermissions | null): void {
-    return this.adminService.cameraPermissions(res, role!['role']);
+  cameraPermissions(@Res() res: Response, @Query("role") role: CameraPermissions | null): void {
+    return this.adminService.cameraPermissions(res, role);
   }
 }

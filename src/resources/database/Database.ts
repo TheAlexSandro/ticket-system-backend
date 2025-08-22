@@ -12,9 +12,6 @@ db.once("open", () => {
 });
 
 const userSchema = new Schema({
-  id: { type: String, default: "-", index: true },
-  name: { type: String, default: "-", index: true },
-  kelas: { type: String, default: "-", index: true },
   username: { type: String, default: "-", index: true },
   salt: { type: String, default: "-" },
   password: { type: String, default: "-" },
@@ -22,8 +19,6 @@ const userSchema = new Schema({
 
 const adminDashboard = new Schema({
   id: { type: String, default: "admin", index: true },
-  jumlah_pengunjung_pbl: { type: String, index: true },
-  jumlah_pengunjung_website: { type: String, index: true },
   camera_permissions: { type: String, index: true },
   camera_status: { type: String, index: true },
 });
@@ -32,11 +27,23 @@ const adminSession = new Schema({
   token: { type: String, index: true },
 });
 
+const refreshToken = new Schema({
+  token: { type: String, index: true }
+})
+
+const hashToken = new Schema({
+  token: { type: String, index: true },
+  hash: { type: String, index: true },
+  salt: { type: String, index: true }
+})
+
 type UserSchema = InferSchemaType<typeof userSchema>;
 type AdminDashSchema = InferSchemaType<typeof adminDashboard>;
 type AdminSesion = InferSchemaType<typeof adminSession>;
+type RefreshToken = InferSchemaType<typeof refreshToken>;
+type HashToken = InferSchemaType<typeof hashToken>;
 
-type Collection = "user" | "admin_dashboard" | "admin_session";
+type Collection = "user" | "admin_dashboard" | "admin_session" | "refresh_token" | "hash_token";
 type Callback<T> = (error: Error | null | string, result: T | null) => void;
 
 const userDB: Model<UserSchema> = mongoose.model<UserSchema>(
@@ -51,6 +58,14 @@ const sessionDB: Model<AdminSesion> = mongoose.model<AdminSesion>(
   "admin_session",
   adminSession
 );
+const refreshTDB: Model<RefreshToken> = mongoose.model<RefreshToken>(
+  "refresh_token",
+  refreshToken
+);
+const hashTDB: Model<HashToken> = mongoose.model<HashToken>(
+  "hash_token",
+  hashToken
+);
 
 const getModel = (collection: Collection): Model<any> => {
   switch (collection) {
@@ -60,20 +75,32 @@ const getModel = (collection: Collection): Model<any> => {
       return adminDB;
     case "admin_session":
       return sessionDB;
+    case "refresh_token":
+      return refreshTDB;
+    case "hash_token":
+      return hashTDB;
     default:
       return userDB;
   }
 };
+
+type addDB = {
+  password?: string | null,
+  salt?: string | null,
+  hash_salt?: string | null,
+  hash?: string | null
+}
 
 export class Database {
   static add(
     collection: Collection,
     identifier: string,
     field_identifier: string,
-    password: string | null = null,
-    salt: string | null = null,
+    options?: addDB,
     callback?: Callback<boolean | string>
   ): void {
+    const { password = null, salt = null, hash_salt = null, hash = null } = options ?? {};
+
     var filter: any;
     if (collection == "user") {
       if (password) {
@@ -83,13 +110,17 @@ export class Database {
       }
     } else if (collection == "admin_session") {
       filter = { token: String(identifier) };
+    } else if (collection == "refresh_token") {
+      filter = { token: String(identifier) };
+    } else if (collection == "hash_token") {
+      filter = { token: String(identifier), salt: hash_salt, hash };
     }
 
     this.get(collection, field_identifier, identifier, (error, result) => {
       if (error) return callback?.(error, null);
       if (result) return;
 
-      const data = collection == "user" ? new userDB(filter) : collection == "admin_dashboard" ? new adminDB(filter) : collection == "admin_session" ? new sessionDB(filter) : null;
+      const data = collection == "user" ? new userDB(filter) : collection == "admin_dashboard" ? new adminDB(filter) : collection == "admin_session" ? new sessionDB(filter) : collection == "hash_token" ? new hashTDB(filter) : new refreshTDB(filter);
       if (!data) return;
 
       data
@@ -116,7 +147,10 @@ export class Database {
       .then((result) => {
         if (!result) return callback(null, false);
         return callback(null, result);
-      });
+      })
+      .catch((err) => {
+        return callback(err, null);
+      })
   }
 
   static edit(
