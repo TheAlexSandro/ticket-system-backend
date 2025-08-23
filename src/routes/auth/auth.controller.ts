@@ -1,4 +1,4 @@
-import { Controller, Post, Req, Res, Query } from "@nestjs/common";
+import { Controller, Post, Req, Res, Body } from "@nestjs/common";
 import { Response, Request } from "express";
 import { AuthService } from "./auth.service";
 import { Public } from "../../resources/security/public.decorator";
@@ -14,17 +14,17 @@ export class AuthController {
   }
 
   @Post("signUp")
-  signUp(@Res() res: Response, @Query("username") username: string | null, @Query("password") password: string | null): void {
+  signUp(@Res() res: Response, @Body("username") username: string | null, @Body("password") password: string | null): void {
     this.authService.signUp(res, username, password);
   }
 
   @Post("getUsername")
-  getUsername(@Res() res: Response, @Query("username") username: string | null): void {
+  getUsername(@Res() res: Response, @Body("username") username: string | null): void {
     this.authService.getUsername(res, username);
   }
 
   @Post("signIn")
-  signIn(@Res() res: Response, @Query("username") username: string | null, @Query("password") password: string | null): void {
+  signIn(@Res() res: Response, @Body("username") username: string | null, @Body("password") password: string | null): void {
     this.authService.signIn(res, username, password);
   }
 
