@@ -24,27 +24,6 @@ export class AuthGuard implements CanActivate {
 
     if (isPublic) return true;
     const P_token = request.body["P_token"] as string | null;
-
-    const authHeader = request.headers["authorization"];
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      Helper.response(res, HttpStatus.UNAUTHORIZED, false,
-        errors["401"]["ACCESS_DENIED"].message,
-        errors["401"]["ACCESS_DENIED"].code
-      );
-      return false;
-    }
-
-    const token = authHeader.split(" ")[1];
-    const validToken = String(process.env["AUTH_TOKEN"]);
-
-    if (token !== validToken) {
-      Helper.response(res, HttpStatus.UNAUTHORIZED, false,
-        errors["401"]["ACCESS_DENIED"].message,
-        errors["401"]["ACCESS_DENIED"].code
-      );
-      return false;
-    }
-
     const isApproved = await this.tokenify.verifyToken(request, res, P_token);
     if (!isApproved) {
       Helper.response(res, HttpStatus.UNAUTHORIZED, false,
