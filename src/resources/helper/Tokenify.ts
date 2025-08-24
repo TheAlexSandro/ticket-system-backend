@@ -61,11 +61,11 @@ export class Tokenify {
   }
 
   generateRefreshToken(@Res() res: Response): object {
-    const duration = 5 * 60 * 1000;
+    const duration = 5 * 1000;
     const hash = Hash.generateToken() as HashToken;
     const jwt = this.jwtService.sign({
       P_token: hash["P_token"],
-      until: duration,
+      maxAge: duration,
     });
 
     Database.add("refresh_token", jwt, "token");
