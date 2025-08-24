@@ -28,7 +28,7 @@ export class AdminService {
         true,
         "Success!",
         null,
-        result
+        { camera_permissions: result!["camera_permissions"], camera_status: result!["camera_status"] }
       );
     });
   }
