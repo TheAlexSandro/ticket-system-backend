@@ -76,7 +76,7 @@ export class Tokenify {
     res.cookie("refresh_token", jwt, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+      sameSite: "strict",
       path: "/",
       maxAge: duration,
     });
