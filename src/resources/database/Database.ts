@@ -29,11 +29,6 @@ const adminSession = new Schema({
 
 const refreshToken = new Schema({
   token: { type: String, index: true },
-  createdAt: { type: Date, default: Date.now, expires: 2 }
-})
-
-const hashToken = new Schema({
-  token: { type: String, index: true },
   hash: { type: String, index: true },
   salt: { type: String, index: true },
   createdAt: { type: Date, default: Date.now, expires: 2 }
@@ -43,7 +38,6 @@ type UserSchema = InferSchemaType<typeof userSchema>;
 type AdminDashSchema = InferSchemaType<typeof adminDashboard>;
 type AdminSesion = InferSchemaType<typeof adminSession>;
 type RefreshToken = InferSchemaType<typeof refreshToken>;
-type HashToken = InferSchemaType<typeof hashToken>;
 
 type Collection = "user" | "admin_dashboard" | "admin_session" | "refresh_token" | "hash_token";
 type Callback<T> = (error: Error | null | string, result: T | null) => void;
@@ -64,10 +58,6 @@ const refreshTDB: Model<RefreshToken> = mongoose.model<RefreshToken>(
   "refresh_token",
   refreshToken
 );
-const hashTDB: Model<HashToken> = mongoose.model<HashToken>(
-  "hash_token",
-  hashToken
-);
 
 const getModel = (collection: Collection): Model<any> => {
   switch (collection) {
@@ -79,8 +69,6 @@ const getModel = (collection: Collection): Model<any> => {
       return sessionDB;
     case "refresh_token":
       return refreshTDB;
-    case "hash_token":
-      return hashTDB;
     default:
       return userDB;
   }
@@ -113,8 +101,6 @@ export class Database {
     } else if (collection == "admin_session") {
       filter = { token: String(identifier) };
     } else if (collection == "refresh_token") {
-      filter = { token: String(identifier) };
-    } else if (collection == "hash_token") {
       filter = { token: String(identifier), salt: hash_salt, hash };
     }
 
@@ -122,7 +108,7 @@ export class Database {
       if (error) return callback?.(error, null);
       if (result) return;
 
-      const data = collection == "user" ? new userDB(filter) : collection == "admin_dashboard" ? new adminDB(filter) : collection == "admin_session" ? new sessionDB(filter) : collection == "hash_token" ? new hashTDB(filter) : new refreshTDB(filter);
+      const data = collection == "user" ? new userDB(filter) : collection == "admin_dashboard" ? new adminDB(filter) : collection == "admin_session" ? new sessionDB(filter) : collection == "refresh_token" ? new refreshTDB(filter) : null;
       if (!data) return;
 
       data

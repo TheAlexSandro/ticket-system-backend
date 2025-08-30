@@ -36,26 +36,24 @@ export class Tokenify {
           return resolve(false);
         }
 
-        Database.get("hash_token", "token", P_token, (err, r) => {
-          if (err || !r) {
-            return resolve(false);
-          }
+        const verifyHash = Hash.verifyToken(
+          P_token,
+          result["salt"],
+          result["hash"]
+        );
+        if (!verifyHash) {
+          return resolve(false);
+        }
 
-          const verifyHash = Hash.verifyToken(P_token, r["salt"], r["hash"]);
-          if (!verifyHash) {
-            return resolve(false);
-          }
-
-          res.cookie("refresh_token", "", {
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
-            path: "/",
-            expires: new Date(0),
-          });
-
-          return resolve(true);
+        res.cookie("refresh_token", "", {
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
+          path: "/",
+          expires: new Date(0),
         });
+
+        return resolve(true);
       });
     });
   }
@@ -68,8 +66,7 @@ export class Tokenify {
       maxAge: duration,
     });
 
-    Database.add("refresh_token", jwt, "token");
-    Database.add("hash_token", hash["P_token"], "token", {
+    Database.add("refresh_token", jwt, "token", {
       hash: hash["hashed"],
       hash_salt: hash["salt"],
     });
