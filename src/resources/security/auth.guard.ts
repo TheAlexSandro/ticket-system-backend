@@ -2,7 +2,7 @@ import {
   Injectable,
   CanActivate,
   ExecutionContext,
-  HttpStatus
+  HttpStatus,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Helper } from "../helper/Helper";
@@ -12,7 +12,10 @@ import { IS_PUBLIC_KEY } from "./public.decorator";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private reflector: Reflector, private tokenify: Tokenify) {}
+  constructor(
+    private reflector: Reflector,
+    private tokenify: Tokenify
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
@@ -23,16 +26,30 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) return true;
-    const P_token = request.body["P_token"] as string | null;
-    const isApproved = await this.tokenify.verifyToken(request, res, P_token);
-    if (!isApproved) {
-      Helper.response(res, HttpStatus.UNAUTHORIZED, false,
+    try {
+      const P_token = request.body["P_token"] as string | null;
+      const isApproved = await this.tokenify.verifyToken(request, res, P_token);
+      if (!isApproved) {
+        Helper.response(
+          res,
+          HttpStatus.UNAUTHORIZED,
+          false,
+          errors["401"]["ACCESS_DENIED"].message,
+          errors["401"]["ACCESS_DENIED"].code
+        );
+        return false;
+      }
+
+      return true;
+    } catch {
+      Helper.response(
+        res,
+        HttpStatus.UNAUTHORIZED,
+        false,
         errors["401"]["ACCESS_DENIED"].message,
         errors["401"]["ACCESS_DENIED"].code
       );
       return false;
     }
-
-    return true;
   }
 }

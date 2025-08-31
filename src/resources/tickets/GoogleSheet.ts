@@ -1,44 +1,53 @@
-import { google } from "googleapis";
-import { sheets_v4 } from "googleapis";
+import { GoogleSpreadsheet } from "google-spreadsheet";
+import { JWT } from "google-auth-library";
 
-type Callback<T> = (error: string | null, result: T) => void;
+type RowData = {
+  id: string;
+  type: "internal" | "eksternal";
+  name: string;
+  class: string | null;
+  absent: string | null;
+  nomor_hp: string | null;
+};
+
+type Callback<T> = (error: string | null, result: T | null) => void;
 
 export class GoogleSheet {
-  private sheet: sheets_v4.Sheets;
+  private doc: GoogleSpreadsheet;
 
   constructor() {
-    const auth = new google.auth.JWT({
+    const auth = new JWT({
       email: process.env["CLIENT_EMAIL"],
       key: process.env["PRIVATE_KEY"],
-      scopes: [
-        "https://www.googleapis.com/auth/spreadsheets.readonly",
-        "https://www.googleapis.com/auth/drive.readonly",
-      ],
+      scopes: ["https://www.googleapis.com/auth/spreadsheets"],
     });
-    this.sheet = google.sheets({ version: "v4", auth });
+    this.doc = new GoogleSpreadsheet(process.env["SPREADSHEET"]!, auth);
   }
 
-  public async spreadsheet(callback: Callback<object | null>) {
-    return this.sheet.spreadsheets.values
-      .get({
-        spreadsheetId: process.env["SPREADSHEET"],
-        range: process.env["RANGE"],
+  public spreadsheet(callback: Callback<RowData[]>) {
+    return this.doc
+      .loadInfo()
+      .then(() => {
+        const sheet = this.doc.sheetsByIndex[0];
+        return sheet.getRows();
       })
-      .then((result) => {
-        const rows = result.data.values || [];
-        const mapping = rows.map((row) => ({
-          id: row[0],
-          type: row[1] as "internal" | "eksternal",
-          name: row[2],
-          class: row[3] && row[3] !== "-" ? row[3] : null,
-          absent: row[4] && row[4] !== "-" ? row[4] : null,
-          nomor_hp: row[5] && row[5] !== "-" ? row[5] : null,
+      .then((rows: any[]) => {
+        const mapping: RowData[] = rows.map((row) => ({
+          id: row._rawData[0],
+          type: row._rawData[1] as "internal" | "eksternal",
+          name: row._rawData[2],
+          class:
+            row._rawData[3] && row._rawData[3] !== "-" ? row._rawData[3] : null,
+          absent:
+            row._rawData[4] && row._rawData[4] !== "-" ? row._rawData[4] : null,
+          nomor_hp:
+            row._rawData[5] && row._rawData[5] !== "-" ? row._rawData[5] : null,
         }));
 
         return callback(null, mapping);
       })
-      .catch(error => {
-        return callback(error.message, null);
-      })
+      .catch((err: any) => {
+        return callback(err.message, null);
+      });
   }
 }
