@@ -48,7 +48,7 @@ export class Tokenify {
         res.cookie("refresh_token", "", {
           httpOnly: true,
           secure: true,
-          sameSite: "none",
+          sameSite: String(process.env["COOKIE_SAME_SITE"]) as "lax" | "strict" | "none" | undefined,
           path: "/",
           expires: new Date(0),
         });
@@ -73,7 +73,7 @@ export class Tokenify {
     res.cookie("refresh_token", jwt, {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as "lax" | "strict" | "none" | undefined,
       path: "/",
       maxAge: duration,
     });

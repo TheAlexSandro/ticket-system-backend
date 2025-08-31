@@ -1,6 +1,6 @@
 import { Injectable, HttpStatus, Res, Req } from "@nestjs/common";
 import { Helper } from "../../resources/helper/Helper";
-import { Response, Request } from "express";
+import { Response, Request, CookieOptions } from "express";
 import errors from "../../resources/errors/errors";
 import { Database } from "../../resources/database/Database";
 import { Password } from "../../resources/helper/Password";
@@ -12,7 +12,9 @@ export class AuthService {
 
   generateAuthentication(@Res() res: Response) {
     const r = this.tokenify.generateRefreshToken(res);
-    return Helper.response(res, HttpStatus.OK, true, "Success!", null, { P_token: r['P_token'] });
+    return Helper.response(res, HttpStatus.OK, true, "Success!", null, {
+      P_token: r["P_token"],
+    });
   }
 
   signUp(
@@ -137,7 +139,11 @@ export class AuthService {
       res.cookie("auth_token", token, {
         httpOnly: true,
         secure: true,
-        sameSite: "strict",
+        sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+          | "lax"
+          | "strict"
+          | "none"
+          | undefined,
         path: "/",
         maxAge: 24 * 60 * 60 * 1000,
       });
@@ -169,7 +175,11 @@ export class AuthService {
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+        | "lax"
+        | "strict"
+        | "none"
+        | undefined,
       path: "/",
       expires: new Date(0),
     });
@@ -216,18 +226,23 @@ export class AuthService {
           errors["401"]["UNAUTHORIZED_ACCESS"].code
         );
 
-      Database.get("admin_dashboard", "id", verif["data"]["username"], (err, r) => {
-        if (err)
-          return Helper.response(
-            res,
-            HttpStatus.OK,
-            false,
-            err,
-            errors["400"]["UNKNOWN_ERROR"].code
-          );
+      Database.get(
+        "admin_dashboard",
+        "id",
+        verif["data"]["username"],
+        (err, r) => {
+          if (err)
+            return Helper.response(
+              res,
+              HttpStatus.OK,
+              false,
+              err,
+              errors["400"]["UNKNOWN_ERROR"].code
+            );
 
-        return Helper.response(res, HttpStatus.OK, true, "Success!", null, r);
-      });
+          return Helper.response(res, HttpStatus.OK, true, "Success!", null, r);
+        }
+      );
     });
   }
 
@@ -235,21 +250,33 @@ export class AuthService {
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+        | "lax"
+        | "strict"
+        | "none"
+        | undefined,
       path: "/",
       expires: new Date(0),
     });
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+        | "lax"
+        | "strict"
+        | "none"
+        | undefined,
       path: "/signin",
       expires: new Date(0),
     });
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: true,
-      sameSite: "strict",
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+        | "lax"
+        | "strict"
+        | "none"
+        | undefined,
       path: "/admin",
       expires: new Date(0),
     });
