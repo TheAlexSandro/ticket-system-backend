@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from "@nestjs/common";
+import { Body, Controller, Post, Res } from "@nestjs/common";
 import { Response } from "express";
 import { UsersService } from "./users.service";
 
@@ -6,8 +6,8 @@ import { UsersService } from "./users.service";
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get("get")
-  getUsers(@Res() res: Response) {
-    return this.usersService.getUsers(res);
+  @Post("scan")
+  scan(@Res() res: Response, @Body("method") method: string | null, @Body("identifier") identifier: string | null) {
+    return this.usersService.scan(res, method, identifier);
   }
 }

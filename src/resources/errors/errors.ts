@@ -13,16 +13,13 @@ export default {
       code: 'EMPTY_PARAMETER',
       message: 'The required parameter cannot be empty: {param}.',
     },
-    FIELD_REQUIRED_NOT_FOUND: {
-      code: 'FIELD_REQUIRED_NOT_FOUND',
+    INVALID_VALUE_IN_PARAMETER: {
+      code: "INVALID_VALUE_IN_PARAMETER",
+      message: "Invalid value in {param}, only accepted: {accept}"
     },
     USER_NOT_FOUND: {
       code: 'USER_NOT_FOUND',
-      message: 'This user are not in that group.',
-    },
-    FILTER_PARTICIPANT_INVALID: {
-      code: 'FILTER_PARTICIPANT_INVALID',
-      message: 'Only allowed participant filter: {filter}',
+      message: 'This user are not in the ticket list.',
     },
   },
   '401': {
