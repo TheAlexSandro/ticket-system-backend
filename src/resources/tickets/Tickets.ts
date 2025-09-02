@@ -3,10 +3,10 @@ import { LRUCache } from "lru-cache";
 
 type Ticket = {
   id: string;
-  type: "internal" | "eksternal";
-  name: string;
-  class?: string | null;
-  absent?: string | null;
+  tipe: "internal" | "eksternal";
+  nama: string;
+  kelas?: string | null;
+  absen?: string | null;
   nomor_hp?: string | null;
 };
 type IdentifierMethod = "id" | "name";
