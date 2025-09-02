@@ -43,7 +43,7 @@ export class Tickets {
     if (getTickets) {
       if (using == "name") {
         var found = (getTickets as Ticket[]).filter((ticket) =>
-          ticket.name
+          ticket.nama
             .toLocaleLowerCase()
             .includes(String(identifier).toLocaleLowerCase())
         );
@@ -60,7 +60,7 @@ export class Tickets {
         if (error) return callback(error, null);
         if (using == "name") {
           var found = (result as Ticket[]).filter((ticket) =>
-            ticket.name
+            ticket.nama
               .toLocaleLowerCase()
               .includes(String(identifier).toLocaleLowerCase())
           );

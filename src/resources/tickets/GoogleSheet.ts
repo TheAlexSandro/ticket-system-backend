@@ -3,11 +3,11 @@ import { JWT } from "google-auth-library";
 
 type RowData = {
   id: string;
-  type: "internal" | "eksternal";
-  name: string;
-  class: string | null;
-  absent: string | null;
-  nomor_hp: string | null;
+  tipe: "internal" | "eksternal";
+  nama: string;
+  kelas?: string | null;
+  absen?: string | null;
+  nomor_hp?: string | null;
 };
 
 type Callback<T> = (error: string | null, result: T | null) => void;
@@ -34,11 +34,11 @@ export class GoogleSheet {
       .then((rows: any[]) => {
         const mapping: RowData[] = rows.map((row) => ({
           id: row._rawData[0],
-          type: row._rawData[1] as "internal" | "eksternal",
-          name: row._rawData[2],
-          class:
+          tipe: row._rawData[1] as "internal" | "eksternal",
+          nama: row._rawData[2],
+          kelas:
             row._rawData[3] && row._rawData[3] !== "-" ? row._rawData[3] : null,
-          absent:
+          absen:
             row._rawData[4] && row._rawData[4] !== "-" ? row._rawData[4] : null,
           nomor_hp:
             row._rawData[5] && row._rawData[5] !== "-" ? row._rawData[5] : null,
