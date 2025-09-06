@@ -1,17 +1,21 @@
 import Redis from "ioredis";
 
 export class RedisCache {
+  private static client: Redis;
+
   static main() {
-    const redis = new Redis({
-      host: process.env["REDIS_ENDPOINT"],
-      port: Number(process.env["REDIS_PORT"]),
-      username: process.env["REDIS_USN"],
-      password: process.env["REDIS_PWD"]
-    });
+    if (!this.client) {
+      this.client = new Redis({
+        host: process.env.REDIS_ENDPOINT,
+        port: Number(process.env.REDIS_PORT),
+        username: process.env.REDIS_USN,
+        password: process.env.REDIS_PWD,
+        tls: {},
+      });
 
-    redis.on("connection", () => console.log("Redis Connected!"));
-    redis.on("error", (err) => console.error(err));
-
-    return redis;
+      this.client.on("connect", () => console.log("Redis Connected!"));
+      this.client.on("error", (err) => console.error("Redis Error:", err));
+    }
+    return this.client;
   }
 }
