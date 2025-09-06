@@ -31,6 +31,7 @@
     "dotenv": "^17.2.1",
     "google-auth-library": "^10.3.0",
     "google-spreadsheet": "^5.0.2",
+    "ioredis": "^5.7.0",
     "lru-cache": "^11.1.0",
     "mongoose": "^8.17.1",
     "reflect-metadata": "^0.2.2",
