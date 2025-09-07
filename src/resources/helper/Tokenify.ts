@@ -13,7 +13,7 @@ export class Tokenify {
   verifyToken(
     @Req() req: Request,
     @Res() res: Response,
-    P_token: string | null
+    P_token: string | null,
   ): Promise<boolean> {
     return new Promise((resolve, reject) => {
       if (!P_token) return resolve(false);
@@ -39,7 +39,7 @@ export class Tokenify {
         const verifyHash = Hash.verifyToken(
           P_token,
           result["salt"],
-          result["hash"]
+          result["hash"],
         );
         if (!verifyHash) {
           return resolve(false);
@@ -48,7 +48,11 @@ export class Tokenify {
         res.cookie("refresh_token", "", {
           httpOnly: true,
           secure: true,
-          sameSite: String(process.env["COOKIE_SAME_SITE"]) as "lax" | "strict" | "none" | undefined,
+          sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+            | "lax"
+            | "strict"
+            | "none"
+            | undefined,
           path: "/",
           expires: new Date(0),
         });
@@ -73,7 +77,11 @@ export class Tokenify {
     res.cookie("refresh_token", jwt, {
       httpOnly: true,
       secure: true,
-      sameSite: String(process.env["COOKIE_SAME_SITE"]) as "lax" | "strict" | "none" | undefined,
+      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+        | "lax"
+        | "strict"
+        | "none"
+        | undefined,
       path: "/",
       maxAge: duration,
     });
@@ -86,8 +94,7 @@ export class Tokenify {
     return token;
   }
 
-  verifyJWT(token: string): string {
-    const r = this.jwtService.verify(token);
-    return r;
+  verifyJWT(token: string): object {
+    return this.jwtService.verify(token);
   }
 }

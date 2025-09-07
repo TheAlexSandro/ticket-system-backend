@@ -4,6 +4,7 @@ import { Response } from "express";
 
 type CameraStatus = "on" | "off";
 type CameraPermissions = "all" | "admin";
+type ScanningMethod = "id" | "name";
 
 @Controller("admin")
 export class AdminController {
@@ -15,12 +16,26 @@ export class AdminController {
   }
 
   @Post("cameraStatus")
-  cameraStatus(@Res() res: Response, @Body("status") status: CameraStatus | null): void {
+  cameraStatus(
+    @Res() res: Response,
+    @Body("status") status: CameraStatus | null,
+  ): void {
     return this.adminService.cameraStatus(res, status);
   }
 
   @Post("cameraPermissions")
-  cameraPermissions(@Res() res: Response, @Body("role") role: CameraPermissions | null): void {
+  cameraPermissions(
+    @Res() res: Response,
+    @Body("role") role: CameraPermissions | null,
+  ): void {
     return this.adminService.cameraPermissions(res, role);
+  }
+
+  @Post("scanningMethod")
+  scanningMethod(
+    @Res() res: Response,
+    @Body("method") method: ScanningMethod | null,
+  ): void {
+    return this.adminService.scanningMethod(res, method);
   }
 }

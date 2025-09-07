@@ -9,11 +9,7 @@ import { APP_GUARD } from "@nestjs/core";
 import { AuthGuard } from "./resources/security/auth.guard";
 
 @Module({
-  imports: [
-    UsersModule,
-    AuthModule,
-    AdminModule,
-  ],
+  imports: [UsersModule, AuthModule, AdminModule],
   controllers: [AppController],
   providers: [
     AppService,

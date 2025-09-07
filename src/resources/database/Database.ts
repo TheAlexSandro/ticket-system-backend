@@ -19,8 +19,9 @@ const userSchema = new Schema({
 
 const adminDashboard = new Schema({
   id: { type: String, default: "admin", index: true },
-  camera_permissions: { type: String, index: true },
-  camera_status: { type: String, index: true },
+  camera_permissions: { type: String, default: "admin", index: true },
+  camera_status: { type: String, default: "on", index: true },
+  scanning_method: { type: String, default: "id", index: true },
 });
 
 const adminSession = new Schema({
@@ -31,32 +32,37 @@ const refreshToken = new Schema({
   token: { type: String, index: true },
   hash: { type: String, index: true },
   salt: { type: String, index: true },
-  createdAt: { type: Date, default: Date.now, expires: 2 }
-})
+  createdAt: { type: Date, default: Date.now, expires: 2 },
+});
 
 type UserSchema = InferSchemaType<typeof userSchema>;
 type AdminDashSchema = InferSchemaType<typeof adminDashboard>;
 type AdminSesion = InferSchemaType<typeof adminSession>;
 type RefreshToken = InferSchemaType<typeof refreshToken>;
 
-type Collection = "user" | "admin_dashboard" | "admin_session" | "refresh_token" | "hash_token";
+type Collection =
+  | "user"
+  | "admin_dashboard"
+  | "admin_session"
+  | "refresh_token"
+  | "hash_token";
 type Callback<T> = (error: Error | null | string, result: T | null) => void;
 
 const userDB: Model<UserSchema> = mongoose.model<UserSchema>(
   "user",
-  userSchema
+  userSchema,
 );
 const adminDB: Model<AdminDashSchema> = mongoose.model<AdminDashSchema>(
   "admin_dashboard",
-  adminDashboard
+  adminDashboard,
 );
 const sessionDB: Model<AdminSesion> = mongoose.model<AdminSesion>(
   "admin_session",
-  adminSession
+  adminSession,
 );
 const refreshTDB: Model<RefreshToken> = mongoose.model<RefreshToken>(
   "refresh_token",
-  refreshToken
+  refreshToken,
 );
 
 const getModel = (collection: Collection): Model<any> => {
@@ -75,11 +81,11 @@ const getModel = (collection: Collection): Model<any> => {
 };
 
 type addDB = {
-  password?: string | null,
-  salt?: string | null,
-  hash_salt?: string | null,
-  hash?: string | null
-}
+  password?: string | null;
+  salt?: string | null;
+  hash_salt?: string | null;
+  hash?: string | null;
+};
 
 export class Database {
   static add(
@@ -87,11 +93,16 @@ export class Database {
     identifier: string,
     field_identifier: string,
     options?: addDB,
-    callback?: Callback<boolean | string>
+    callback?: Callback<boolean | string>,
   ): void {
-    const { password = null, salt = null, hash_salt = null, hash = null } = options ?? {};
+    const {
+      password = null,
+      salt = null,
+      hash_salt = null,
+      hash = null,
+    } = options ?? {};
 
-    var filter: any;
+    let filter: any;
     if (collection == "user") {
       if (password) {
         filter = { id: String(identifier), password, salt };
@@ -108,7 +119,16 @@ export class Database {
       if (error) return callback?.(error, null);
       if (result) return;
 
-      const data = collection == "user" ? new userDB(filter) : collection == "admin_dashboard" ? new adminDB(filter) : collection == "admin_session" ? new sessionDB(filter) : collection == "refresh_token" ? new refreshTDB(filter) : null;
+      const data =
+        collection == "user"
+          ? new userDB(filter)
+          : collection == "admin_dashboard"
+            ? new adminDB(filter)
+            : collection == "admin_session"
+              ? new sessionDB(filter)
+              : collection == "refresh_token"
+                ? new refreshTDB(filter)
+                : null;
       if (!data) return;
 
       data
@@ -126,7 +146,7 @@ export class Database {
     collection: Collection,
     field_identifier: string,
     identifier: string,
-    callback: Callback<boolean | string | object>
+    callback: Callback<boolean | string | object>,
   ): void {
     const model = getModel(collection);
 
@@ -138,7 +158,7 @@ export class Database {
       })
       .catch((err) => {
         return callback(err, null);
-      })
+      });
   }
 
   static edit(
@@ -147,7 +167,7 @@ export class Database {
     identifier: string | number,
     field: string,
     new_value: any,
-    callback?: Callback<boolean | string | object>
+    callback?: Callback<boolean | string | object>,
   ): void {
     const model = getModel(collection);
 
@@ -173,7 +193,7 @@ export class Database {
     collection: Collection,
     field_identifier: string,
     identifier: string,
-    callback?: Callback<boolean | string>
+    callback?: Callback<boolean | string>,
   ): void {
     const model = getModel(collection);
 

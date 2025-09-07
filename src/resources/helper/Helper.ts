@@ -8,13 +8,14 @@ export class Helper {
     ok: boolean,
     message: string | Error | null = null,
     error_code: string | null = null,
-    result: any = null
+    result: any = null,
   ): void {
     const responseData = this.cleanJSON({
       status_code,
       ok,
       error_code,
       message: message instanceof Error ? message.message : message,
+
       result,
     });
 
@@ -24,8 +25,8 @@ export class Helper {
   static cleanJSON<T extends Record<string, any>>(data: T): Partial<T> {
     return Object.fromEntries(
       Object.entries(data).filter(
-        ([_, value]) => value !== undefined && value !== null
-      )
+        ([_, value]) => value !== undefined && value !== null,
+      ),
     ) as Partial<T>;
   }
 

@@ -13,6 +13,7 @@ export class AuthService {
   generateAuthentication(@Res() res: Response) {
     const r = this.tokenify.generateRefreshToken(res);
     return Helper.response(res, HttpStatus.OK, true, "Success!", null, {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       P_token: r["P_token"],
     });
   }
@@ -20,7 +21,7 @@ export class AuthService {
   signUp(
     @Res() res: Response,
     username: string | null,
-    password: string | null
+    password: string | null,
   ) {
     if (!username || !password)
       return Helper.response(
@@ -29,9 +30,9 @@ export class AuthService {
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace(
           "{param}",
-          "username, password"
+          "username, password",
         ),
-        errors["404"]["EMPTY_PARAMETER"].code
+        errors["404"]["EMPTY_PARAMETER"].code,
       );
 
     const IDs = Helper.generateID(10);
@@ -43,17 +44,17 @@ export class AuthService {
       IDs,
       "username",
       { password: encrypt, salt },
-      (error, result) => {
+      (error) => {
         if (error)
           return Helper.response(
             res,
             HttpStatus.OK,
             false,
             error,
-            errors["400"]["UNKNOWN_ERROR"].code
+            errors["400"]["UNKNOWN_ERROR"].code,
           );
         return Helper.response(res, HttpStatus.OK, true, "Success!");
-      }
+      },
     );
   }
 
@@ -64,7 +65,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace("{param}", "username"),
-        errors["404"]["EMPTY_PARAMETER"].code
+        errors["404"]["EMPTY_PARAMETER"].code,
       );
 
     Database.get("user", "username", username, (error, result) => {
@@ -74,7 +75,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           error,
-          errors["400"]["UNKNOWN_ERROR"].code
+          errors["400"]["UNKNOWN_ERROR"].code,
         );
       if (!result)
         return Helper.response(
@@ -82,7 +83,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Not Found",
-          errors["404"]["USER_NOT_FOUND"].code
+          errors["404"]["USER_NOT_FOUND"].code,
         );
 
       return Helper.response(res, HttpStatus.OK, true, "Success!");
@@ -92,7 +93,7 @@ export class AuthService {
   signIn(
     @Res() res: Response,
     username: string | null,
-    password: string | null
+    password: string | null,
   ) {
     if (!username || !password)
       return Helper.response(
@@ -101,9 +102,9 @@ export class AuthService {
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace(
           "{param}",
-          "username, password"
+          "username, password",
         ),
-        errors["404"]["EMPTY_PARAMETER"].code
+        errors["404"]["EMPTY_PARAMETER"].code,
       );
 
     Database.get("user", "username", username, (error, result) => {
@@ -113,7 +114,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           error,
-          errors["400"]["UNKNOWN_ERROR"].code
+          errors["400"]["UNKNOWN_ERROR"].code,
         );
       if (!result)
         return Helper.response(
@@ -121,10 +122,10 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Not Found",
-          errors["404"]["USER_NOT_FOUND"].code
+          errors["404"]["USER_NOT_FOUND"].code,
         );
-      const pwd = result!["password"];
-      const salt = result!["salt"];
+      const pwd = result["password"];
+      const salt = result["salt"];
       const validate = Password.verifyPassword(password, salt, pwd);
       if (!validate)
         return Helper.response(
@@ -132,7 +133,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           errors["401"]["UNAUTHORIZED_ACCESS"].message,
-          errors["401"]["UNAUTHORIZED_ACCESS"].code
+          errors["401"]["UNAUTHORIZED_ACCESS"].code,
         );
 
       const token = this.tokenify.generateJWT({ username });
@@ -160,7 +161,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
+        errors["401"]["UNAUTHORIZED_ACCESS"].code,
       );
     const verif = this.tokenify.verifyJWT(getJWT);
     if (!verif)
@@ -169,7 +170,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
+        errors["401"]["UNAUTHORIZED_ACCESS"].code,
       );
 
     res.cookie("auth_token", "", {
@@ -196,7 +197,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
+        errors["401"]["UNAUTHORIZED_ACCESS"].code,
       );
     const verif = this.tokenify.verifyJWT(getJWT);
     if (!verif)
@@ -205,7 +206,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
+        errors["401"]["UNAUTHORIZED_ACCESS"].code,
       );
 
     Database.get("admin_session", "token", getJWT, (err, rest) => {
@@ -215,7 +216,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           err,
-          errors["400"]["UNKNOWN_ERROR"].code
+          errors["400"]["UNKNOWN_ERROR"].code,
         );
       if (!rest)
         return Helper.response(
@@ -223,7 +224,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Invalid token",
-          errors["401"]["UNAUTHORIZED_ACCESS"].code
+          errors["401"]["UNAUTHORIZED_ACCESS"].code,
         );
 
       Database.get(
@@ -237,16 +238,16 @@ export class AuthService {
               HttpStatus.OK,
               false,
               err,
-              errors["400"]["UNKNOWN_ERROR"].code
+              errors["400"]["UNKNOWN_ERROR"].code,
             );
 
           return Helper.response(res, HttpStatus.OK, true, "Success!", null, r);
-        }
+        },
       );
     });
   }
 
-  clearCookie(@Res() res: Response, @Req() req: Request) {
+  clearCookie(@Res() res: Response) {
     res.cookie("auth_token", "", {
       httpOnly: true,
       secure: true,

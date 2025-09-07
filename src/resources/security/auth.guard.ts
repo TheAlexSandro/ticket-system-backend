@@ -14,7 +14,7 @@ import { IS_PUBLIC_KEY } from "./public.decorator";
 export class AuthGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private tokenify: Tokenify
+    private tokenify: Tokenify,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -35,7 +35,7 @@ export class AuthGuard implements CanActivate {
           HttpStatus.UNAUTHORIZED,
           false,
           errors["401"]["ACCESS_DENIED"].message,
-          errors["401"]["ACCESS_DENIED"].code
+          errors["401"]["ACCESS_DENIED"].code,
         );
         return false;
       }
@@ -47,7 +47,7 @@ export class AuthGuard implements CanActivate {
         HttpStatus.UNAUTHORIZED,
         false,
         errors["401"]["ACCESS_DENIED"].message,
-        errors["401"]["ACCESS_DENIED"].code
+        errors["401"]["ACCESS_DENIED"].code,
       );
       return false;
     }

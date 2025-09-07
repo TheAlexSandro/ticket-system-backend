@@ -9,7 +9,7 @@ export class RedisCache {
         host: process.env.REDIS_ENDPOINT,
         port: Number(process.env.REDIS_PORT),
         username: process.env.REDIS_USN,
-        password: process.env.REDIS_PWD
+        password: process.env.REDIS_PWD,
       });
 
       this.client.on("connect", () => console.log("Redis Connected!"));

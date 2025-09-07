@@ -12,6 +12,6 @@ import { Tokenify } from "src/resources/helper/Tokenify";
   ],
   controllers: [AuthController],
   providers: [AuthService, Tokenify],
-  exports: [Tokenify]
+  exports: [Tokenify],
 })
 export class AuthModule {}

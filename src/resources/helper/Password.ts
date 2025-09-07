@@ -16,7 +16,7 @@ export class Password {
   static verifyPassword = (
     inputPassword: string,
     salt: string,
-    hash: string
+    hash: string,
   ): boolean => {
     const inputHash = this.hashPassword(String(inputPassword), salt);
     return crypto.timingSafeEqual(Buffer.from(inputHash), Buffer.from(hash));

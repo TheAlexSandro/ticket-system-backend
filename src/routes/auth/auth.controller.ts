@@ -14,17 +14,28 @@ export class AuthController {
   }
 
   @Post("signUp")
-  signUp(@Res() res: Response, @Body("username") username: string | null, @Body("password") password: string | null): void {
+  signUp(
+    @Res() res: Response,
+    @Body("username") username: string | null,
+    @Body("password") password: string | null,
+  ): void {
     this.authService.signUp(res, username, password);
   }
 
   @Post("getUsername")
-  getUsername(@Res() res: Response, @Body("username") username: string | null): void {
+  getUsername(
+    @Res() res: Response,
+    @Body("username") username: string | null,
+  ): void {
     this.authService.getUsername(res, username);
   }
 
   @Post("signIn")
-  signIn(@Res() res: Response, @Body("username") username: string | null, @Body("password") password: string | null): void {
+  signIn(
+    @Res() res: Response,
+    @Body("username") username: string | null,
+    @Body("password") password: string | null,
+  ): void {
     this.authService.signIn(res, username, password);
   }
 
@@ -39,7 +50,7 @@ export class AuthController {
   }
 
   @Post("clearCookie")
-  clearCookie(@Res() res: Response, @Req() req: Request): void {
-    this.authService.clearCookie(res, req);
+  clearCookie(@Res() res: Response): void {
+    this.authService.clearCookie(res);
   }
 }

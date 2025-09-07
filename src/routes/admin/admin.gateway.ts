@@ -8,7 +8,6 @@ import { Server } from "socket.io";
     credentials: true,
   },
 })
-
 export class AdminGateway {
   @WebSocketServer()
   server: Server;

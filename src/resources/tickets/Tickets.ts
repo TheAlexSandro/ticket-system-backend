@@ -32,22 +32,23 @@ export class Tickets {
   public get(
     using: IdentifierMethod,
     identifier: string | null,
-    callback: Callback<boolean | null | Ticket[]>
+    callback: Callback<boolean | null | Ticket[]>,
   ) {
     if (!identifier) return;
     RedisCache.main()
       .get("tickets")
       .then((getTickets) => {
         if (getTickets) {
-          var tickets = JSON.parse(getTickets);
+          const tickets = JSON.parse(getTickets);
+          let found;
           if (using == "name") {
-            var found = tickets.filter((ticket: Ticket) =>
+            found = tickets.filter((ticket: Ticket) =>
               ticket.nama
                 .toLocaleLowerCase()
-                .includes(String(identifier).toLocaleLowerCase())
+                .includes(String(identifier).toLocaleLowerCase()),
             );
           } else {
-            var found = tickets.filter((ticket: Ticket) => ticket.id == identifier);
+            found = tickets.filter((ticket: Ticket) => ticket.id == identifier);
           }
 
           if (found.length == 0) return callback(null, false);
@@ -55,19 +56,20 @@ export class Tickets {
         } else {
           this.init((error, result) => {
             if (error) return callback(error, null);
+            let found;
             if (using == "name") {
-              var found = (result as Ticket[]).filter((ticket: Ticket) =>
+              found = (result as Ticket[]).filter((ticket: Ticket) =>
                 ticket.nama
                   .toLocaleLowerCase()
-                  .includes(String(identifier).toLocaleLowerCase())
+                  .includes(String(identifier).toLocaleLowerCase()),
               );
             } else {
-              var found = (result as Ticket[]).filter(
-                (ticket: Ticket) => ticket.id == identifier
+              found = (result as Ticket[]).filter(
+                (ticket: Ticket) => ticket.id == identifier,
               );
             }
             if (found.length == 0) return callback(null, false);
-            return callback(null, found as Ticket[]);
+            return callback(null, found);
           });
         }
       });
