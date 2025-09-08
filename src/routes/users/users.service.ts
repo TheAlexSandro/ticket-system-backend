@@ -16,9 +16,7 @@ export class UsersService {
     this.ticket = new Tickets();
   }
 
-  admin(
-    @Res() res: Response,
-  ): void {
+  admin(@Res() res: Response): void {
     Database.add("admin_dashboard", "admin", "id");
     return Helper.response(res, HttpStatus.OK, true, "Success!", null);
   }
@@ -26,7 +24,7 @@ export class UsersService {
   scan(
     @Res() res: Response,
     method: string | null,
-    identifier: string | null,
+    identifier: string | null
   ): void {
     if (!identifier || !method)
       return Helper.response(
@@ -35,9 +33,9 @@ export class UsersService {
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace(
           "{param}",
-          "method, identifier",
+          "method, identifier"
         ),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
     if (!["id", "name"].includes(method))
       return Helper.response(
@@ -47,8 +45,9 @@ export class UsersService {
         errors["404"]["INVALID_VALUE_IN_PARAMETER"].message
           .replace("{param}", "method")
           .replace("{accept}", "id, name"),
-        errors["404"]["INVALID_VALUE_IN_PARAMETER"].code,
+        errors["404"]["INVALID_VALUE_IN_PARAMETER"].code
       );
+
     RedisCache.main()
       .get(identifier)
       .then((r) => {
@@ -64,7 +63,7 @@ export class UsersService {
             true,
             "Resolved!",
             null,
-            rst,
+            rst
           );
         }
 
@@ -78,7 +77,7 @@ export class UsersService {
                 HttpStatus.OK,
                 false,
                 error,
-                errors["400"]["UNKNOWN_ERROR"].code,
+                errors["400"]["UNKNOWN_ERROR"].code
               );
             if (!result)
               return Helper.response(
@@ -86,7 +85,7 @@ export class UsersService {
                 HttpStatus.OK,
                 false,
                 errors["404"]["USER_NOT_FOUND"].message,
-                errors["404"]["USER_NOT_FOUND"].code,
+                errors["404"]["USER_NOT_FOUND"].code
               );
             RedisCache.main().set(identifier, JSON.stringify(result));
 
@@ -96,9 +95,9 @@ export class UsersService {
               true,
               "Resolved!",
               null,
-              result,
+              result
             );
-          },
+          }
         );
       })
       .catch((err) => {
@@ -107,7 +106,7 @@ export class UsersService {
           HttpStatus.OK,
           false,
           err,
-          errors["400"]["UNKNOWN_ERROR"].code,
+          errors["400"]["UNKNOWN_ERROR"].code
         );
       });
   }

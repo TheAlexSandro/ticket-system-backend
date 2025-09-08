@@ -7,7 +7,6 @@ import { Public } from "./resources/security/public.decorator";
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Public()
   @Get()
   index(@Res() res: Response): object {
     return this.appService.index(res);
@@ -15,7 +14,7 @@ export class AppController {
 
   @Public()
   @Get("ping")
-  Ping(@Res() res: Response): void {
+  ping(@Res() res: Response): void {
     return this.appService.ping(res);
   }
 }

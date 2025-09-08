@@ -40,7 +40,7 @@ export class Tickets {
       .then((getTickets) => {
         if (getTickets) {
           const tickets = JSON.parse(getTickets);
-          let found;
+          let found: Ticket[];
           if (using == "name") {
             found = tickets.filter((ticket: Ticket) =>
               ticket.nama
@@ -56,7 +56,7 @@ export class Tickets {
         } else {
           this.init((error, result) => {
             if (error) return callback(error, null);
-            let found;
+            let found: Ticket[];
             if (using == "name") {
               found = (result as Ticket[]).filter((ticket: Ticket) =>
                 ticket.nama
