@@ -1,4 +1,4 @@
-import { Controller, Body, Post, Res } from "@nestjs/common";
+import { Controller, Body, Post, Res, Req } from "@nestjs/common";
 import { AdminService } from "./admin.service";
 import { Response } from "express";
 
@@ -18,7 +18,7 @@ export class AdminController {
   @Post("cameraStatus")
   cameraStatus(
     @Res() res: Response,
-    @Body("status") status: CameraStatus | null,
+    @Body("status") status: CameraStatus | null
   ): void {
     return this.adminService.cameraStatus(res, status);
   }
@@ -26,7 +26,7 @@ export class AdminController {
   @Post("cameraPermissions")
   cameraPermissions(
     @Res() res: Response,
-    @Body("role") role: CameraPermissions | null,
+    @Body("role") role: CameraPermissions | null
   ): void {
     return this.adminService.cameraPermissions(res, role);
   }
@@ -34,8 +34,18 @@ export class AdminController {
   @Post("scanningMethod")
   scanningMethod(
     @Res() res: Response,
-    @Body("method") method: ScanningMethod | null,
+    @Body("method") method: ScanningMethod | null
   ): void {
     return this.adminService.scanningMethod(res, method);
+  }
+
+  @Post("forceRefresh")
+  drop(@Res() res: Response, @Req() req: Request): void {
+    return this.adminService.drop(res, req);
+  }
+
+  @Post("getTotal")
+  getTotal(@Res() res: Response): void {
+    return this.adminService.getTotal(res);
   }
 }

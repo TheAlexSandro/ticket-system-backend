@@ -1,9 +1,11 @@
-import { Injectable, HttpStatus, Res } from "@nestjs/common";
+import { Injectable, HttpStatus, Res, Req } from "@nestjs/common";
 import { Helper } from "../../resources/helper/Helper";
 import { Response } from "express";
 import errors from "../../resources/errors/errors";
 import { Database } from "../../resources/database/Database";
 import { AdminGateway } from "./admin.gateway";
+import { Tokenify } from "../../resources/helper/Tokenify";
+import { RedisCache } from "src/resources/database/Redis";
 
 type CameraStatus = "on" | "off";
 type CameraPermissions = "all" | "admin";
@@ -11,7 +13,10 @@ type ScanningMethod = "id" | "name";
 
 @Injectable()
 export class AdminService {
-  constructor(private adminGate: AdminGateway) {}
+  constructor(
+    private adminGate: AdminGateway,
+    private readonly tokenify: Tokenify
+  ) {}
 
   getInfo(@Res() res: Response) {
     Database.get("admin_dashboard", "id", "admin", (error, result) => {
@@ -21,7 +26,7 @@ export class AdminService {
           HttpStatus.OK,
           false,
           error,
-          errors["400"]["UNKNOWN_ERROR"].code,
+          errors["400"]["UNKNOWN_ERROR"].code
         );
       return Helper.response(res, HttpStatus.OK, true, "Success!", null, {
         camera_permissions: result!["camera_permissions"],
@@ -38,7 +43,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace("{param}", "status"),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     if (!["on", "off"].includes(status))
@@ -47,7 +52,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         "Value hanya menerima on dan off",
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     Database.edit(
@@ -63,7 +68,7 @@ export class AdminService {
             HttpStatus.OK,
             false,
             error,
-            errors["400"]["UNKNOWN_ERROR"].code,
+            errors["400"]["UNKNOWN_ERROR"].code
           );
         this.adminGate.sendCameraStatus(status == "on");
         return Helper.response(
@@ -72,9 +77,9 @@ export class AdminService {
           true,
           "Success!",
           null,
-          status == "on",
+          status == "on"
         );
-      },
+      }
     );
   }
 
@@ -85,7 +90,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace("{param}", "role"),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     if (!["all", "admin"].includes(role))
@@ -94,7 +99,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         "Value hanya menerima all dan admin",
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     Database.edit(
@@ -110,12 +115,12 @@ export class AdminService {
             HttpStatus.OK,
             false,
             error,
-            errors["400"]["UNKNOWN_ERROR"].code,
+            errors["400"]["UNKNOWN_ERROR"].code
           );
 
         this.adminGate.logoutCamera();
         return Helper.response(res, HttpStatus.OK, true, "Success!", null);
-      },
+      }
     );
   }
 
@@ -126,7 +131,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace("{param}", "method"),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     if (!["id", "name"].includes(method))
@@ -135,7 +140,7 @@ export class AdminService {
         HttpStatus.OK,
         false,
         "Value hanya menerima id dan name",
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     Database.edit(
@@ -151,12 +156,101 @@ export class AdminService {
             HttpStatus.OK,
             false,
             error,
-            errors["400"]["UNKNOWN_ERROR"].code,
+            errors["400"]["UNKNOWN_ERROR"].code
           );
 
         this.adminGate.logoutCamera();
         return Helper.response(res, HttpStatus.OK, true, "Success!", null);
-      },
+      }
     );
+  }
+
+  drop(@Res() res: Response, @Req() req: Request) {
+    const getJWT = (req as any).cookies["auth_token"];
+    if (!getJWT)
+      return Helper.response(
+        res,
+        HttpStatus.OK,
+        false,
+        "Not logged in",
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
+      );
+    const verif = this.tokenify.verifyJWT(getJWT);
+    if (!verif)
+      return Helper.response(
+        res,
+        HttpStatus.OK,
+        false,
+        "Invalid token",
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
+      );
+
+    Database.get("admin_session", "token", getJWT, (err, rest) => {
+      if (err)
+        return Helper.response(
+          res,
+          HttpStatus.OK,
+          false,
+          err,
+          errors["400"]["UNKNOWN_ERROR"].code
+        );
+      if (!rest)
+        return Helper.response(
+          res,
+          HttpStatus.OK,
+          false,
+          "Invalid token",
+          errors["401"]["UNAUTHORIZED_ACCESS"].code
+        );
+
+      Database.drop("admin_session");
+      res.cookie("auth_token", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+          | "lax"
+          | "strict"
+          | "none"
+          | undefined,
+        path: "/",
+        expires: new Date(0),
+      });
+      res.cookie("auth_token", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+          | "lax"
+          | "strict"
+          | "none"
+          | undefined,
+        path: "/signin",
+        expires: new Date(0),
+      });
+      res.cookie("auth_token", "", {
+        httpOnly: true,
+        secure: true,
+        sameSite: String(process.env["COOKIE_SAME_SITE"]) as
+          | "lax"
+          | "strict"
+          | "none"
+          | undefined,
+        path: "/admin",
+        expires: new Date(0),
+      });
+      this.adminGate.refresh();
+      return Helper.response(res, HttpStatus.OK, true, "Success!", null);
+    });
+  }
+
+  getTotal(@Res() res: Response) {
+    RedisCache.main()
+      .get("total_pengunjung")
+      .then((total_pengunjung) => {
+        RedisCache.main()
+          .get("total_ticket")
+          .then((total_ticket) => {
+            return Helper.response(res, HttpStatus.OK, true, "Success!", null, { total_pengunjung: total_pengunjung ?? 0, total_ticket: total_ticket ?? 0 });
+          });
+      });
   }
 }

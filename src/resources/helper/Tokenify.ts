@@ -45,29 +45,16 @@ export class Tokenify {
           return resolve(false);
         }
 
-        res.cookie("refresh_token", "", {
-          httpOnly: true,
-          secure: true,
-          sameSite: String(process.env["COOKIE_SAME_SITE"]) as
-            | "lax"
-            | "strict"
-            | "none"
-            | undefined,
-          path: "/",
-          expires: new Date(0),
-        });
-
         return resolve(true);
       });
     });
   }
 
   generateRefreshToken(@Res() res: Response): object {
-    const duration = 5 * 1000;
+    const duration = Number(process.env["MAX_CACHE"]);
     const hash = Hash.generateToken() as HashToken;
     const jwt = this.jwtService.sign({
       P_token: hash["P_token"],
-      maxAge: duration,
     });
 
     Database.add("refresh_token", jwt, "token", {

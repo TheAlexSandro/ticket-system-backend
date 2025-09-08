@@ -19,4 +19,8 @@ export class AdminGateway {
   logoutCamera() {
     this.server.emit("logout", { status: true });
   }
+
+  refresh() {
+    this.server.emit("refresh", { status: true });
+  }
 }

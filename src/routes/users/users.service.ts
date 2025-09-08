@@ -48,8 +48,9 @@ export class UsersService {
         errors["404"]["INVALID_VALUE_IN_PARAMETER"].code
       );
 
+    const ident = identifier.toLowerCase();
     RedisCache.main()
-      .get(identifier)
+      .get(ident)
       .then((r) => {
         if (r) {
           const rst = JSON.parse(r).map((item: any) => ({
@@ -69,7 +70,7 @@ export class UsersService {
 
         return this.ticket.get(
           method as IdentifierMethod,
-          identifier,
+          ident,
           (error, result) => {
             if (error)
               return Helper.response(
@@ -87,7 +88,27 @@ export class UsersService {
                 errors["404"]["USER_NOT_FOUND"].message,
                 errors["404"]["USER_NOT_FOUND"].code
               );
-            RedisCache.main().set(identifier, JSON.stringify(result));
+            RedisCache.main().set(ident, JSON.stringify(result));
+            if (method == "id") {
+              RedisCache.main().set(
+                result[0].nama.toLowerCase(),
+                JSON.stringify(result)
+              );
+            } else {
+              RedisCache.main().set(
+                result[0].id.toLowerCase(),
+                JSON.stringify(result)
+              );
+            }
+            RedisCache.main()
+              .get("total_pengunjung")
+              .then((total) => {
+                if (total) {
+                  RedisCache.main().set("total_pengunjung", Number(total) + 1);
+                } else {
+                  RedisCache.main().set("total_pengunjung", 1);
+                }
+              });
 
             return Helper.response(
               res,

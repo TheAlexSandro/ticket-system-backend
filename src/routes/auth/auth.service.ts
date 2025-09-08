@@ -21,7 +21,7 @@ export class AuthService {
   signUp(
     @Res() res: Response,
     username: string | null,
-    password: string | null,
+    password: string | null
   ) {
     if (!username || !password)
       return Helper.response(
@@ -30,9 +30,9 @@ export class AuthService {
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace(
           "{param}",
-          "username, password",
+          "username, password"
         ),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     const IDs = Helper.generateID(10);
@@ -51,10 +51,10 @@ export class AuthService {
             HttpStatus.OK,
             false,
             error,
-            errors["400"]["UNKNOWN_ERROR"].code,
+            errors["400"]["UNKNOWN_ERROR"].code
           );
         return Helper.response(res, HttpStatus.OK, true, "Success!");
-      },
+      }
     );
   }
 
@@ -65,7 +65,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace("{param}", "username"),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     Database.get("user", "username", username, (error, result) => {
@@ -75,7 +75,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           error,
-          errors["400"]["UNKNOWN_ERROR"].code,
+          errors["400"]["UNKNOWN_ERROR"].code
         );
       if (!result)
         return Helper.response(
@@ -83,7 +83,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Not Found",
-          errors["404"]["USER_NOT_FOUND"].code,
+          errors["404"]["USER_NOT_FOUND"].code
         );
 
       return Helper.response(res, HttpStatus.OK, true, "Success!");
@@ -93,7 +93,7 @@ export class AuthService {
   signIn(
     @Res() res: Response,
     username: string | null,
-    password: string | null,
+    password: string | null
   ) {
     if (!username || !password)
       return Helper.response(
@@ -102,9 +102,9 @@ export class AuthService {
         false,
         errors["404"]["EMPTY_PARAMETER"].message.replace(
           "{param}",
-          "username, password",
+          "username, password"
         ),
-        errors["404"]["EMPTY_PARAMETER"].code,
+        errors["404"]["EMPTY_PARAMETER"].code
       );
 
     Database.get("user", "username", username, (error, result) => {
@@ -114,7 +114,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           error,
-          errors["400"]["UNKNOWN_ERROR"].code,
+          errors["400"]["UNKNOWN_ERROR"].code
         );
       if (!result)
         return Helper.response(
@@ -122,7 +122,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Not Found",
-          errors["404"]["USER_NOT_FOUND"].code,
+          errors["404"]["USER_NOT_FOUND"].code
         );
       const pwd = result["password"];
       const salt = result["salt"];
@@ -133,7 +133,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           errors["401"]["UNAUTHORIZED_ACCESS"].message,
-          errors["401"]["UNAUTHORIZED_ACCESS"].code,
+          errors["401"]["UNAUTHORIZED_ACCESS"].code
         );
 
       const token = this.tokenify.generateJWT({ username });
@@ -161,7 +161,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code,
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
     const verif = this.tokenify.verifyJWT(getJWT);
     if (!verif)
@@ -170,7 +170,7 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code,
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
 
     res.cookie("auth_token", "", {
@@ -197,17 +197,20 @@ export class AuthService {
         HttpStatus.OK,
         false,
         "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code,
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
-    const verif = this.tokenify.verifyJWT(getJWT);
-    if (!verif)
+
+    try {
+      this.tokenify.verifyJWT(getJWT);
+    } catch {
       return Helper.response(
         res,
         HttpStatus.OK,
         false,
         "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code,
+        errors["401"]["UNAUTHORIZED_ACCESS"].code
       );
+    }
 
     Database.get("admin_session", "token", getJWT, (err, rest) => {
       if (err)
@@ -216,7 +219,7 @@ export class AuthService {
           HttpStatus.OK,
           false,
           err,
-          errors["400"]["UNKNOWN_ERROR"].code,
+          errors["400"]["UNKNOWN_ERROR"].code
         );
       if (!rest)
         return Helper.response(
@@ -224,13 +227,13 @@ export class AuthService {
           HttpStatus.OK,
           false,
           "Invalid token",
-          errors["401"]["UNAUTHORIZED_ACCESS"].code,
+          errors["401"]["UNAUTHORIZED_ACCESS"].code
         );
 
       Database.get(
         "admin_dashboard",
         "id",
-        verif["data"]["username"],
+        "admin",
         (err, r) => {
           if (err)
             return Helper.response(
@@ -238,11 +241,11 @@ export class AuthService {
               HttpStatus.OK,
               false,
               err,
-              errors["400"]["UNKNOWN_ERROR"].code,
+              errors["400"]["UNKNOWN_ERROR"].code
             );
 
           return Helper.response(res, HttpStatus.OK, true, "Success!", null, r);
-        },
+        }
       );
     });
   }

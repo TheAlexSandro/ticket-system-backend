@@ -32,7 +32,7 @@ const refreshToken = new Schema({
   token: { type: String, index: true },
   hash: { type: String, index: true },
   salt: { type: String, index: true },
-  createdAt: { type: Date, default: Date.now, expires: 2 },
+  createdAt: { type: Date, default: Date.now, expires: Math.floor(Number(process.env["MAX_CACHE"]) / 1000) },
 });
 
 type UserSchema = InferSchemaType<typeof userSchema>;
@@ -50,19 +50,19 @@ type Callback<T> = (error: Error | null | string, result: T | null) => void;
 
 const userDB: Model<UserSchema> = mongoose.model<UserSchema>(
   "user",
-  userSchema,
+  userSchema
 );
 const adminDB: Model<AdminDashSchema> = mongoose.model<AdminDashSchema>(
   "admin_dashboard",
-  adminDashboard,
+  adminDashboard
 );
 const sessionDB: Model<AdminSesion> = mongoose.model<AdminSesion>(
   "admin_session",
-  adminSession,
+  adminSession
 );
 const refreshTDB: Model<RefreshToken> = mongoose.model<RefreshToken>(
   "refresh_token",
-  refreshToken,
+  refreshToken
 );
 
 const getModel = (collection: Collection): Model<any> => {
@@ -93,7 +93,7 @@ export class Database {
     identifier: string,
     field_identifier: string,
     options?: addDB,
-    callback?: Callback<boolean | string>,
+    callback?: Callback<boolean | string>
   ): void {
     const {
       password = null,
@@ -146,7 +146,7 @@ export class Database {
     collection: Collection,
     field_identifier: string,
     identifier: string,
-    callback: Callback<boolean | string | object>,
+    callback: Callback<boolean | string | object>
   ): void {
     const model = getModel(collection);
 
@@ -167,7 +167,7 @@ export class Database {
     identifier: string | number,
     field: string,
     new_value: any,
-    callback?: Callback<boolean | string | object>,
+    callback?: Callback<boolean | string | object>
   ): void {
     const model = getModel(collection);
 
@@ -193,12 +193,20 @@ export class Database {
     collection: Collection,
     field_identifier: string,
     identifier: string,
-    callback?: Callback<boolean | string>,
+    callback?: Callback<boolean | string>
   ): void {
     const model = getModel(collection);
 
     model
       .deleteOne({ [field_identifier]: identifier })
+      .then(() => callback?.(null, true))
+      .catch((err: Error) => callback?.(err.message, null));
+  }
+
+  static drop(collection: Collection, callback?: Callback<boolean | string>) {
+    const model = getModel(collection);
+    model
+      .deleteMany({})
       .then(() => callback?.(null, true))
       .catch((err: Error) => callback?.(err.message, null));
   }

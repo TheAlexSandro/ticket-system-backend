@@ -24,7 +24,23 @@ export class Tickets {
   private init(callback: Callback<string | null | Ticket[]>) {
     return this.sheet.spreadsheet((error, result: Ticket[] | null) => {
       if (error) return callback(error, null);
-      RedisCache.main().set("tickets", JSON.stringify(result), "EX", 60);
+      RedisCache.main().set(
+        "tickets",
+        JSON.stringify(result),
+        "EX",
+        Number(process.env["REDIS_CACHE_TIMEOUT"])
+      );
+      RedisCache.main().set(
+        "total_ticket_temp",
+        result!.length,
+        "EX",
+        Number(process.env["REDIS_CACHE_TIMEOUT"])
+      );
+      RedisCache.main()
+        .get("total_ticket_temp")
+        .then((r) => {
+          RedisCache.main().set("total_ticket", String(r));
+        });
       return callback(null, result as Ticket[]);
     });
   }
@@ -32,7 +48,7 @@ export class Tickets {
   public get(
     using: IdentifierMethod,
     identifier: string | null,
-    callback: Callback<boolean | null | Ticket[]>,
+    callback: Callback<boolean | null | Ticket[]>
   ) {
     if (!identifier) return;
     RedisCache.main()
@@ -44,11 +60,13 @@ export class Tickets {
           if (using == "name") {
             found = tickets.filter((ticket: Ticket) =>
               ticket.nama
-                .toLocaleLowerCase()
-                .includes(String(identifier).toLocaleLowerCase()),
+                .toLowerCase()
+                .includes(String(identifier).toLowerCase())
             );
           } else {
-            found = tickets.filter((ticket: Ticket) => ticket.id == identifier);
+            found = tickets.filter(
+              (ticket: Ticket) => ticket.id.toLowerCase() == identifier
+            );
           }
 
           if (found.length == 0) return callback(null, false);
@@ -60,12 +78,12 @@ export class Tickets {
             if (using == "name") {
               found = (result as Ticket[]).filter((ticket: Ticket) =>
                 ticket.nama
-                  .toLocaleLowerCase()
-                  .includes(String(identifier).toLocaleLowerCase()),
+                  .toLowerCase()
+                  .includes(String(identifier).toLowerCase())
               );
             } else {
               found = (result as Ticket[]).filter(
-                (ticket: Ticket) => ticket.id == identifier,
+                (ticket: Ticket) => ticket.id.toLowerCase() == identifier
               );
             }
             if (found.length == 0) return callback(null, false);

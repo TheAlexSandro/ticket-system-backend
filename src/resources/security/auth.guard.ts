@@ -36,7 +36,7 @@ export class AuthGuard implements CanActivate {
           res,
           HttpStatus.UNAUTHORIZED,
           false,
-          errors["401"]["ACCESS_DENIED"].message,
+          "P_token kadaluarsa.",
           errors["401"]["ACCESS_DENIED"].code
         );
         return false;
