@@ -9,10 +9,11 @@ import { Reflector } from "@nestjs/core";
 import { Tokenify } from "./resources/helper/Tokenify";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SpaFallbackFilter } from "./resources/security/exception.filter";
+import { join } from "path";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  app.useStaticAssets("./public");
+  app.useStaticAssets(join(process.cwd(), "public"));
 
   const reflector = app.get(Reflector);
   const tokenify = app.get(Tokenify);
