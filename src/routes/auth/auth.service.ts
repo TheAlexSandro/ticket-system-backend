@@ -147,6 +147,7 @@ export class AuthService {
           | undefined,
         path: "/",
         maxAge: 24 * 60 * 60 * 1000,
+        domain: String(process.env["COOKIE_DOMAIN"])
       });
       Database.add("admin_session", token, "token");
       return Helper.response(res, HttpStatus.OK, true, "Success!");
@@ -183,6 +184,7 @@ export class AuthService {
         | undefined,
       path: "/",
       expires: new Date(0),
+      domain: String(process.env["COOKIE_DOMAIN"])
     });
 
     Database.remove("admin_session", "token", getJWT);
@@ -261,6 +263,7 @@ export class AuthService {
         | undefined,
       path: "/",
       expires: new Date(0),
+      domain: String(process.env["COOKIE_DOMAIN"])
     });
     res.cookie("auth_token", "", {
       httpOnly: true,
@@ -272,6 +275,7 @@ export class AuthService {
         | undefined,
       path: "/signin",
       expires: new Date(0),
+      domain: String(process.env["COOKIE_DOMAIN"])
     });
     res.cookie("auth_token", "", {
       httpOnly: true,
@@ -283,6 +287,7 @@ export class AuthService {
         | undefined,
       path: "/admin",
       expires: new Date(0),
+      domain: String(process.env["COOKIE_DOMAIN"])
     });
     return Helper.response(res, HttpStatus.OK, true, "Success!", null);
   }

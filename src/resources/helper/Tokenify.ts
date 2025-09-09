@@ -71,6 +71,7 @@ export class Tokenify {
         | undefined,
       path: "/",
       maxAge: duration,
+      domain: String(process.env["COOKIE_DOMAIN"])
     });
 
     return { P_token: hash["P_token"], refresh_token: jwt, duration };

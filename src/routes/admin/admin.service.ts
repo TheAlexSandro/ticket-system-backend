@@ -214,6 +214,7 @@ export class AdminService {
           | undefined,
         path: "/",
         expires: new Date(0),
+        domain: String(process.env["COOKIE_DOMAIN"])
       });
       res.cookie("auth_token", "", {
         httpOnly: true,
@@ -225,6 +226,7 @@ export class AdminService {
           | undefined,
         path: "/signin",
         expires: new Date(0),
+        domain: String(process.env["COOKIE_DOMAIN"])
       });
       res.cookie("auth_token", "", {
         httpOnly: true,
@@ -236,6 +238,7 @@ export class AdminService {
           | undefined,
         path: "/admin",
         expires: new Date(0),
+        domain: String(process.env["COOKIE_DOMAIN"])
       });
       this.adminGate.refresh();
       return Helper.response(res, HttpStatus.OK, true, "Success!", null);
