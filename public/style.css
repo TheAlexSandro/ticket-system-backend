@@ -1,0 +1,107 @@
+/*
+* Copyright 2025 oleh Panitia Project Based Learning
+* All Rights reserved.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+body,
+html {
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+}
+
+a {
+    text-decoration: none;
+    color: #2b818b !important;
+}
+
+.info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    max-width: 520px;
+    padding: 0 16px;
+    text-align: center;
+}
+
+.info img {
+    margin: 0 auto;
+    width: 20%;
+    height: auto;
+    display: block;
+    transform-origin: center;
+    animation: bounce 1.2s ease-in-out infinite;
+    -webkit-animation: bounce 1.2s ease-in-out infinite;
+    will-change: transform;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@-webkit-keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.info h1 {
+    font-size: 25px;
+    margin-bottom: -10px;
+}
+
+.info p {
+    font-size: 17px;
+}
+
+.info .container .footer {
+    margin-top: 10%;
+    border: solid 1px black;
+    line-height: 17px;
+}
+
+.info .container .footer p {
+    font-size: 14px;
+}
+
+.info .container .footer #space {
+    display: block;
+    margin-bottom: 35px;
+}
+
+@media (max-width: 600px) {
+    .info {
+        max-width: 370px;
+    }
+
+    .info img {
+        width: 30%;
+        height: auto;
+    }
+
+    .info .container .footer {
+        margin-top: 20%;
+        padding: 10px;
+    }
+}
