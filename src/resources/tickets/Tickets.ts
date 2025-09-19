@@ -31,7 +31,7 @@ export class Tickets {
       );
       RedisCache.main().set(
         String(process.env["TICKET_TEMP_IDENTIFIER"]),
-        result!.length,
+        JSON.stringify(result),
         "EX",
         Number(process.env["REDIS_CACHE_TIMEOUT"])
       );

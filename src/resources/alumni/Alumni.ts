@@ -28,20 +28,6 @@ export class Alumni {
         "EX",
         Number(process.env["REDIS_CACHE_TIMEOUT"])
       );
-      RedisCache.main().set(
-        String(process.env["ALUMNI_TEMP_IDENTIFIER"]),
-        JSON.stringify(result),
-        "EX",
-        Number(process.env["REDIS_CACHE_TIMEOUT"])
-      );
-      RedisCache.main()
-        .get(String(process.env["ALUMNI_TEMP_IDENTIFIER"]))
-        .then((r) => {
-          RedisCache.main().set(
-            String(process.env["REDIS_ALUMNI_IDENTIFIER"]),
-            String(r)
-          );
-        });
       return callback(null, result as AlumniData[]);
     });
   }
