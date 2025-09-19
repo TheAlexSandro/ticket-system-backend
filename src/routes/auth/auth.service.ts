@@ -156,37 +156,6 @@ export class AuthService {
 
   signOut(@Res() res: Response, @Req() req: Request) {
     const getJWT = (req as any).cookies["auth_token"];
-    if (!getJWT)
-      return Helper.response(
-        res,
-        HttpStatus.OK,
-        false,
-        "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
-      );
-    const verif = this.tokenify.verifyJWT(getJWT);
-    if (!verif)
-      return Helper.response(
-        res,
-        HttpStatus.OK,
-        false,
-        "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
-      );
-
-    res.cookie("auth_token", "", {
-      httpOnly: true,
-      secure: true,
-      sameSite: String(process.env["COOKIE_SAME_SITE"]) as
-        | "lax"
-        | "strict"
-        | "none"
-        | undefined,
-      path: "/",
-      expires: new Date(0),
-      domain: String(process.env["COOKIE_DOMAIN"])
-    });
-
     Database.remove("admin_session", "token", getJWT);
     return Helper.response(res, HttpStatus.OK, true, "Success!");
   }

@@ -1,10 +1,8 @@
 {
-  "name": "backend",
-  "version": "19.09.25",
-  "description": "",
-  "author": "",
+  "name": "ticketsystembackend",
+  "description": "Ticket System Backend",
+  "author": "Panitia Project Based Learning",
   "private": true,
-  "license": "UNLICENSED",
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=512' nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
@@ -86,5 +84,17 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "version": "19.09.25",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TheAlexSandro/ticket-system-backend.git"
+  },
+  "keywords": ["ticket-system", "backend"],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TheAlexSandro/ticket-system-backend/issues"
+  },
+  "homepage": "https://github.com/TheAlexSandro/ticket-system-backend#readme"
 }
