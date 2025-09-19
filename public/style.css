@@ -85,11 +85,6 @@ a {
     font-size: 14px;
 }
 
-.info .container .footer #space {
-    display: block;
-    margin-bottom: 35px;
-}
-
 @media (max-width: 600px) {
     .info {
         max-width: 370px;

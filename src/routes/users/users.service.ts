@@ -224,8 +224,15 @@ export class UsersService {
                 );
                 const teks = `NAMA LENGKAP: ${nama.toUpperCase()}\nUMUR: ${umur}\nNO HP: +62${phone}\nALAMAT: ${alamat}\nLULUSAN TAHUN: ${lulus_tahun}.`;
 
-                return res.redirect(
-                  `${process.env["API_WA"]}${process.env["NO_WA"]}&text=${encodeURIComponent(teks)}&type=phone_number&app_absent=0`
+                return Helper.response(
+                  res,
+                  HttpStatus.OK,
+                  true,
+                  "Resolved!",
+                  null,
+                  {
+                    url: `${process.env["API_WA"]}${process.env["NO_WA"]}&text=${encodeURIComponent(teks)}&type=phone_number&app_absent=0`,
+                  }
                 );
               }
             );
@@ -245,81 +252,40 @@ export class UsersService {
   }
 
   getAlumni(@Res() res: Response, @Req() req: Request) {
-    const getJWT = (req as any).cookies["auth_token"];
-    if (!getJWT)
-      return Helper.response(
-        res,
-        HttpStatus.OK,
-        false,
-        "Not logged in",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
-      );
+    RedisCache.main()
+      .get(String(process.env["REDIS_ALUMNI_IDENTIFIER"]))
+      .then((alumniData) => {
+        if (alumniData) {
+          const rst = JSON.parse(alumniData);
+          return Helper.response(
+            res,
+            HttpStatus.OK,
+            true,
+            "Success!",
+            null,
+            rst
+          );
+        }
 
-    try {
-      this.tokenify.verifyJWT(getJWT);
-    } catch {
-      return Helper.response(
-        res,
-        HttpStatus.OK,
-        false,
-        "Invalid token",
-        errors["401"]["UNAUTHORIZED_ACCESS"].code
-      );
-    }
-
-    Database.get("admin_session", "token", getJWT, (err, rest) => {
-      if (err)
-        return Helper.response(
-          res,
-          HttpStatus.OK,
-          false,
-          err,
-          errors["400"]["UNKNOWN_ERROR"].code
-        );
-      if (!rest)
-        return Helper.response(
-          res,
-          HttpStatus.OK,
-          false,
-          "Invalid token",
-          errors["401"]["UNAUTHORIZED_ACCESS"].code
-        );
-
-      RedisCache.main()
-        .get(String(process.env["REDIS_ALUMNI_IDENTIFIER"]))
-        .then((alumniData) => {
-          if (alumniData) {
-            const rst = JSON.parse(alumniData);
+        this.alumnis.init((er, result) => {
+          if (er)
             return Helper.response(
               res,
               HttpStatus.OK,
-              true,
-              "Success!",
-              null,
-              rst
+              false,
+              er,
+              errors["400"]["UNKNOWN_ERROR"].code
             );
-          }
 
-          this.alumnis.init((er, result) => {
-            if (er)
-              return Helper.response(
-                res,
-                HttpStatus.OK,
-                false,
-                er,
-                errors["400"]["UNKNOWN_ERROR"].code
-              );
-
-            return Helper.response(
-              res,
-              HttpStatus.OK,
-              true,
-              "Success!",
-              null,
-              result
-            );
-          });
+          return Helper.response(
+            res,
+            HttpStatus.OK,
+            true,
+            "Success!",
+            null,
+            result
+          );
         });
-    });
+      });
   }
 }
