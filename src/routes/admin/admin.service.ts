@@ -250,9 +250,10 @@ export class AdminService {
       .get("total_pengunjung")
       .then((total_pengunjung) => {
         RedisCache.main()
-          .get("total_ticket")
-          .then((total_ticket) => {
-            return Helper.response(res, HttpStatus.OK, true, "Success!", null, { total_pengunjung: total_pengunjung ?? 0, total_ticket: total_ticket ?? 0 });
+          .get("ticket_data")
+          .then((ticket_data) => {
+            const parseTicketData = ticket_data ? JSON.parse(ticket_data).length : 0;
+            return Helper.response(res, HttpStatus.OK, true, "Success!", null, { total_pengunjung: total_pengunjung ?? 0, total_ticket: parseTicketData });
           });
       });
   }
