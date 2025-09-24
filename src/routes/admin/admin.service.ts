@@ -253,7 +253,14 @@ export class AdminService {
           .get("ticket_data")
           .then((ticket_data) => {
             const parseTicketData = ticket_data ? JSON.parse(ticket_data).length : 0;
-            return Helper.response(res, HttpStatus.OK, true, "Success!", null, { total_pengunjung: total_pengunjung ?? 0, total_ticket: parseTicketData });
+            const parsePengunjungData = total_pengunjung ? JSON.parse(total_pengunjung).length : 0;
+            const listTicketData = ticket_data ? JSON.parse(ticket_data) : [];
+            const listPengunjungData = total_pengunjung ? JSON.parse(total_pengunjung) : [];
+
+            const totals =  { total_pengunjung: parsePengunjungData, total_ticket: parseTicketData };
+            const list = { ticket_data: listTicketData, pengunjung_data: listPengunjungData };
+
+            return Helper.response(res, HttpStatus.OK, true, "Success!", null, { total: totals, data_list: list });
           });
       });
   }

@@ -38,7 +38,10 @@ export class Tickets {
       RedisCache.main()
         .get(String(process.env["TICKET_TEMP_IDENTIFIER"]))
         .then((r) => {
-          RedisCache.main().set(String(process.env["REDIS_TICKET_IDENTIFIER"]), String(r));
+          RedisCache.main().set(
+            String(process.env["REDIS_TICKET_IDENTIFIER"]),
+            String(r)
+          );
         });
       return callback(null, result as Ticket[]);
     });
@@ -88,6 +91,16 @@ export class Tickets {
             return callback(null, found);
           });
         }
+      });
+  }
+
+  public addPengunjung(data: Ticket) {
+    RedisCache.main()
+      .get(`total_pengunjung`)
+      .then((result) => {
+        const list = result ? JSON.parse(result) : [];
+        list.push(data);
+        RedisCache.main().set(`total_pengunjung`, JSON.stringify(list));
       });
   }
 }

@@ -111,15 +111,7 @@ export class UsersService {
                 JSON.stringify(result)
               );
             }
-            RedisCache.main()
-              .get("total_pengunjung")
-              .then((total) => {
-                if (total) {
-                  RedisCache.main().set("total_pengunjung", Number(total) + 1);
-                } else {
-                  RedisCache.main().set("total_pengunjung", 1);
-                }
-              });
+            this.ticket.addPengunjung(result[0]);
 
             return Helper.response(
               res,
