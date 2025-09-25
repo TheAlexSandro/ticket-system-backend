@@ -85,7 +85,7 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "version": "19.09.25",
+  "version": "25.09.25",
   "main": "index.js",
   "repository": {
     "type": "git",
