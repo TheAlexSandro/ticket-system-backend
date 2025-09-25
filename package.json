@@ -4,7 +4,7 @@
   "author": "Panitia Project Based Learning",
   "private": true,
   "scripts": {
-    "build": "nest build",
+    "build": "npx @nestjs/cli build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "npm run build && node dist/main",
     "start:dev": "nest start --watch",
