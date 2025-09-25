@@ -5,24 +5,20 @@ import errors from "src/resources/errors/errors";
 import { Tickets } from "src/resources/tickets/Tickets";
 import { RedisCache } from "src/resources/database/Redis";
 import { Database } from "src/resources/database/Database";
-import { GoogleDrive } from "src/resources/alumni/GoogleDrive";
+import { CDN } from "src/resources/alumni/CDN";
 import { AlumniSheet } from "src/resources/alumni/AlumniSheet";
 import { Alumni } from "src/resources/alumni/Alumni";
-import { Tokenify } from "../../resources/helper/Tokenify";
 
 type IdentifierMethod = "id" | "name";
 
 @Injectable()
 export class UsersService {
   private ticket: Tickets;
-  private alumniDrive: GoogleDrive;
   private alumniSheet: AlumniSheet;
   private alumnis: Alumni;
-  private tokenify: Tokenify;
 
   constructor() {
     this.ticket = new Tickets();
-    this.alumniDrive = new GoogleDrive();
     this.alumniSheet = new AlumniSheet();
     this.alumnis = new Alumni();
   }
@@ -182,14 +178,8 @@ export class UsersService {
           );
         }
 
-        const rID = Helper.generateID(20);
-        const base64Data = bukti.split(",")[1];
-        const buffer = Buffer.from(base64Data, "base64");
-
-        this.alumniDrive.upload(
-          buffer,
-          `ALUMNUS-${rID}`,
-          "image/png",
+        CDN.upload(
+          bukti,
           (e, link: string) => {
             if (e)
               return Helper.response(
@@ -220,7 +210,7 @@ export class UsersService {
                   res,
                   HttpStatus.OK,
                   true,
-                  "Resolved!",
+                  "Success!",
                   null,
                   {
                     url: `${process.env["API_WA"]}${process.env["NO_WA"]}&text=${encodeURIComponent(teks)}&type=phone_number&app_absent=0`,

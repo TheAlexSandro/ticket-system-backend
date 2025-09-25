@@ -18,7 +18,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@googleapis/drive": "^17.0.0",
+    "@aws-sdk/client-s3": "^3.896.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
@@ -91,7 +91,10 @@
     "type": "git",
     "url": "git+https://github.com/TheAlexSandro/ticket-system-backend.git"
   },
-  "keywords": ["ticket-system", "backend"],
+  "keywords": [
+    "ticket-system",
+    "backend"
+  ],
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/TheAlexSandro/ticket-system-backend/issues"
